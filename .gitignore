@@ -1,4 +1,5 @@
 #Visual Studio files
+*.VC.db
 *.o
 *.d
 *.so

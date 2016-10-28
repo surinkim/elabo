@@ -6,10 +6,11 @@
 #include <string>
 #include <iostream>
 #include <assert.h>
-#include <algorithm>
+#include <memory>
 
 #include <elabo\Console.h>
 #include <elabo\Singleton.h>
+#include <elabo\Factory.h>
 #include <elabo\String.h>
 #include <elabo\Network.h>
 
@@ -30,10 +31,58 @@ public:
 
 };
 
+class Human
+{
+public:
+    explicit Human(std::string name) : _name(name) {}
+    virtual ~Human() {};
+
+    virtual void Call() {};
+
+protected:
+    std::string _name;
+};
+
+class Student : public Human
+{
+public:
+    explicit Student(std::string name) : Human( name ) {}
+    ~Student() 
+    {
+        std::cout << "Student Destructor." << std::endl;
+    }
+
+    void Call() override { std::cout << "I'm a student. My name is " << _name.c_str() << "." << std::endl; }
+};
+
+std::unique_ptr<Student> CreateStudent(std::string name)
+{
+    return std::make_unique<Student>(name);
+}
+
+class Professor : public Human
+{
+public:
+    explicit Professor( std::string name ) : Human( name ) {}
+    ~Professor()
+    {
+        std::cout << "Professor Destructor." << std::endl;
+    }
+
+    void Call() override { std::cout << "I'm a professor. My name is " << _name.c_str() << "." << std::endl; }
+};
+
+std::unique_ptr<Professor> CreateProfessor(std::string name)
+{
+    return std::make_unique<Professor>(name);
+}
+
+using FactoryType = elabo::pattern::Factory<Human, int>;
+
 int main()
 {
 
-	/*pattern example*/
+//pattern example/////////////////////////////////////////////////////////////
 
 	//Singleton
 	Foo& foo = Foo::GetInstance();
@@ -51,8 +100,19 @@ int main()
 
 	std::cout << std::endl;
 
-	/*string example*/
+    //Factory
+    FactoryType factory;
+    factory.Add(1, std::bind(CreateStudent, std::placeholders::_1));
+    auto human = factory.Create(1, "Robert");
+    human.get()->Call();
 
+    factory.Add(2, (std::unique_ptr<Human> (*)(std::string)) CreateProfessor);
+    human = factory.Create(2, "Harry");
+    human.get()->Call();
+
+    std::cout << std::endl;
+
+//string example///////////////////////////////////////////////////////////////
 	const char* str = "This is an Multi byte string literal.\n";
 	std::cout << str << std::endl;
 
@@ -66,7 +126,7 @@ int main()
 
 	std::cout << std::endl;
 
-	/*network example*/
+//network example///////////////////////////////////////////////////////////////
 	std::vector<std::string> vecAddr;
 	if ( GetLocalAddress( vecAddr ) == false )
 	{
@@ -81,7 +141,7 @@ int main()
 
 	std::cout << std::endl;
 
-	/*console example*/
+//console example///////////////////////////////////////////////////////////////
 	//Set Console Text Color
 	ColoredPrintf( TextColor::YELLOW, "This is a Yellow Color Text.\n" );
 	ColoredPrintf( TextColor::RED, "This is a Red Color Text.\n" );

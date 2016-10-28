@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\elabo\Console.h" />
+    <ClInclude Include="include\elabo\Factory.h" />
     <ClInclude Include="include\elabo\Network.h" />
     <ClInclude Include="include\elabo\Singleton.h" />
     <ClInclude Include="include\elabo\String.h" />
